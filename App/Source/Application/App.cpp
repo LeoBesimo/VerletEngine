@@ -11,7 +11,8 @@ void App::init()
 	std::cout << "Creating Window\n";
 
 	windowPtr = createWindow(1400, 1200, "App Window");
-	windowPtr->fill(0, 255, 0);
+	//windowPtr->fill(0, 255, 0);
+	windowPtr->noFill();
 	windowPtr->stroke(255, 255, 255);
 	windowPtr->setFramerateLimit(60);
 
@@ -31,16 +32,11 @@ void App::update(float dt)
 	//ImGui::SFML::SetCurrentWindow(*windowPtr);
 	//ImGui::ShowDemoWindow();
 
-	ImGui::Begin("FPS Display");
-
-	std::stringstream stream;
-	stream << "FPS " << 1 / dt << "\n" << "Ball Count:" << balls.size() << "\n";
-
-	ImGui::Text(stream.str().c_str());
-
-	ImGui::End();
-
 	
+
+	//currentTime = Clock::now();
+
+	lastTime = Clock::now();
 
 	for (Physics::Ball& ball : balls) {
 		integrator.verletIntegration(ball, dt);
@@ -54,23 +50,44 @@ void App::update(float dt)
 		}*/
 	}
 
-	for (auto& obj : balls) {
-		grid.update(&obj);
-	}
+	
 
+	grid.clearGrid();
+
+	for (auto& obj : balls) {
+		grid.addBall(&obj);
+	}
+	auto lastPairTime = Clock::now();
 	auto potentialPairs = grid.getPotentialPairs();
+	auto currentPairTime = Clock::now();
 
 	// Check narrow phase with SAT
+	auto lastCollTime = Clock::now();
 	for (const auto& pair : potentialPairs) {
 		if (integrator.detectCollision(*pair.first, *pair.second)) {
 			integrator.resolveCollision(*pair.first, *pair.second);
 		}
 	}
+	auto currCollTime = Clock::now();
+
+	currentTime = Clock::now();
+	float collisionTime = std::chrono::duration<float>(currentTime - lastTime).count();
+	lastTime = currentTime;
+
+	ImGui::Begin("FPS Display");
+
+	std::stringstream stream;
+	stream << "FPS " << 1 / dt << "\n"<< "Ball Count:" << balls.size() << "\n";
+	stream << "Pair Time: " << std::chrono::duration<float>(currentPairTime - lastPairTime).count() << "\n";
+	stream << "Collision Time" << std::chrono::duration<float>(currCollTime - lastCollTime).count() << "\n";
+	ImGui::Text(stream.str().c_str());
+
+	ImGui::End();
 
 	windowPtr->clear();
 
 	for (Physics::Ball& ball : balls) {
-		windowPtr->circle(ball.x, ball.y, ball.radius);
+		windowPtr->circle(ball.pos.x, ball.pos.y, ball.radius);
 	}
 }
 
@@ -81,9 +98,9 @@ void App::destroy()
 void App::addBall()
 {
 	for(int i =0; i< 30; i++){
-		Physics::Ball ball = Physics::Ball(windowPtr->MousePosition.x, windowPtr->MousePosition.y, 25);
-		ball.xVel = rand() % (60 + 60 + 1) - 120;
-		ball.yVel = rand() % (60 + 60 + 1) - 120;
+		Physics::Ball ball = Physics::Ball(Math::Vector2(windowPtr->MousePosition.x, windowPtr->MousePosition.y), 25);
+		ball.vel.x = rand() % (60 + 60 + 1) - 120;
+		ball.vel.y = rand() % (60 + 60 + 1) - 120;
 
 		balls.push_back(ball);
 	}

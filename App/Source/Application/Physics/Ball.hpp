@@ -1,26 +1,30 @@
 #pragma once
 
+#include "../Vector2.hpp"
+
 namespace Physics
 {
 	struct BoundingBox
 	{
-		float xMin, xMax;
-		float yMin, yMax;
+		Math::Vector2 min;
+		Math::Vector2 max;
+
+		bool overlaps(const BoundingBox& other) const
+		{
+			return (max.x > other.min.x && min.x < other.max.x) &&
+				(max.y > other.min.y && min.y < other.max.y);
+		}
 	};
 
 	struct Ball
 	{
-		float xAcc;
-		float yAcc;
+		Math::Vector2 acc;
 
-		float xVel;
-		float yVel;
+		Math::Vector2 vel;
 
-		float xForce = 0;
-		float yForce = 0;
+		Math::Vector2 force;
 
-		float x;
-		float y;
+		Math::Vector2 pos;
 		float radius;
 
 		float mass = 1;
@@ -28,27 +32,10 @@ namespace Physics
 
 		BoundingBox boundingBox;
 
-		bool overlap(const Ball& other) const {
-			return (boundingBox.xMax + x > other.boundingBox.xMin + other.x && boundingBox.xMin + x < other.boundingBox.xMax + other.x) &&
-				(boundingBox.yMax +y > other.boundingBox.yMin + y && boundingBox.yMin + y < other.boundingBox.yMax + y);
-		}
-
-		Ball(float x, float y, float r)
+		Ball(Math::Vector2 pos, float r)
 		{
-			this->x = x;
-			this->y = y;
+			this->pos = pos;
 			this->radius = r;
-
-			boundingBox.xMin = -radius;
-			boundingBox.xMax = +radius;
-			boundingBox.yMin = -radius;
-			boundingBox.yMax = +radius;
-
-			xVel = 0;
-			yVel = 0;
-
-			xAcc = 0;
-			yAcc = 0;
 		}
 	};
 }

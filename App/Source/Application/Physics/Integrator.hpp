@@ -16,5 +16,6 @@ namespace Physics
 
 		bool detectCollision(Ball& a, Ball& b);
 		void resolveCollision(Ball& a, Ball& b);
+		void solveOverlap(Ball& a, Ball& b);
 	};
 }

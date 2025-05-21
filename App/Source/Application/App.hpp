@@ -22,10 +22,14 @@ public:
 
 
 private:
-	Physics::SpatialGrid grid = Physics::SpatialGrid(64.f);
+	Physics::SpatialGrid grid = Physics::SpatialGrid(50.f);
 	std::shared_ptr<Core::Window> windowPtr;
 
 	std::vector<Physics::Ball> balls;
 
 	Physics::Integrator integrator;
+
+	using Clock = std::chrono::high_resolution_clock;
+	std::chrono::steady_clock::time_point lastTime = Clock::now();
+	std::chrono::steady_clock::time_point currentTime = Clock::now();
 };
