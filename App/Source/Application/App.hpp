@@ -3,6 +3,9 @@
 #include <Core/Core.h>
 #include <iostream>
 
+#include "Physics/Integrator.hpp"
+#include "Physics/SpatialGrid.hpp"
+
 class App :
 	public Core::Application
 {
@@ -15,8 +18,14 @@ public:
 	void update(float dt) override;
 	void destroy() override;
 
+	void addBall();
+
 
 private:
+	Physics::SpatialGrid grid = Physics::SpatialGrid(64.f);
 	std::shared_ptr<Core::Window> windowPtr;
-	std::shared_ptr<Core::Window> wind2;
+
+	std::vector<Physics::Ball> balls;
+
+	Physics::Integrator integrator;
 };
